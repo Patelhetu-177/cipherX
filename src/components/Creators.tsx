@@ -56,7 +56,6 @@ function Creators() {
         </h2>
         <p className="text-base md:text-lg text-white text-center mb-4">
         cipherX was designed and built by...
-          journey
         </p>
         <div className="flex flex-row items-center justify-center mb-10 w-full">
           <AnimatedTooltip items={instructors} />

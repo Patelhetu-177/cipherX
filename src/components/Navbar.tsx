@@ -54,15 +54,6 @@ const Navbar = async () => {
                   Upload
                 </Link>
                 <Link
-                  href="/configure/analysis"
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "ghost",
-                  })}
-                >
-                  Analysis
-                </Link>
-                <Link
                   href="/contact"
                   className={buttonVariants({
                     size: "sm",

@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Evidence {
+  id          String  @id @default(uuid()) // Use UUID for PostgreSQL
+  name        String
+  path        String
+  importedAt  DateTime @default(now())
+  analysis    Analysis[] @relation("EvidenceAnalysis")
+}
+
+model Analysis {
+  id               String   @id @default(uuid()) // Use UUID for PostgreSQL
+  evidenceId       String
+  evidence         Evidence @relation("EvidenceAnalysis", fields: [evidenceId], references: [id])
+  files            Json
+  systemLogs       Json
+  registryEntries  Json
+  networkActivity  Json
+  iocs             Json
+  createdAt        DateTime @default(now())
+  score            Float
+  recommendations  String
+}
+
+
