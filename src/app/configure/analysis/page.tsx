@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Progress as ProgressBar } from '@/components/ui/progress'; // Alias 'Progress' to 'ProgressBar' to avoid conflict
+import { Progress as ProgressBar } from '@/components/ui/progress';
+import { PDFDocument, rgb } from 'pdf-lib';
+import { saveAs } from 'file-saver';
+
+
 
 type Progress = {
   files: number;
@@ -13,7 +17,7 @@ type Progress = {
   score: number;
 };
 
-const AnalysisPage = () => {
+const Page = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const evidenceId = searchParams.get('id');
@@ -28,7 +32,7 @@ const AnalysisPage = () => {
   });
 
   const [recommendations, setRecommendations] = useState<string>('');
-  const [report, setReport] = useState(null);
+  const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
     const analyzeEvidence = async () => {
@@ -72,6 +76,25 @@ const AnalysisPage = () => {
     }
   }, [evidenceId]);
 
+  const downloadPDF = async () => {
+    if (!report) return;
+
+    const doc = await PDFDocument.create();
+    const page = doc.addPage([600, 400]);
+    const { width, height } = page.getSize();
+
+    page.drawText('Analysis Report', { x: 50, y: height - 50, size: 30, color: rgb(0, 0, 0) });
+    page.drawText(`Evidence ID: ${evidenceId || 'N/A'}`, { x: 50, y: height - 100, size: 20, color: rgb(0, 0, 0) });
+    page.drawText(`Recommendations: ${recommendations}`, { x: 50, y: height - 150, size: 20, color: rgb(0, 0, 0) });
+
+    // Draw the report JSON below the recommendations
+    const reportText = JSON.stringify(report, null, 2);
+    page.drawText(reportText, { x: 50, y: height - 250, size: 12, color: rgb(0, 0, 0) });
+
+    const pdfBytes = await doc.save();
+    saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), 'analysis-report.pdf');
+  };
+
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-bold">Evidence Analysis</h1>
@@ -89,10 +112,16 @@ const AnalysisPage = () => {
         <div className="mt-8">
           <h2 className="text-lg font-semibold">Analysis Report</h2>
           <pre className="bg-gray-200 p-4 rounded">{JSON.stringify(report, null, 2)}</pre>
+          <button
+            onClick={downloadPDF}
+            className="mt-4 p-2 bg-blue-500 text-white rounded"
+          >
+            Save Report as PDF
+          </button>
         </div>
       )}
     </div>
   );
 };
 
-export default AnalysisPage;
+export default Page;
